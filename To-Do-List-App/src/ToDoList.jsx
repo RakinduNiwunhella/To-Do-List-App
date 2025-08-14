@@ -1,9 +1,10 @@
 import React from 'react'
 import { useState } from 'react';
+import './index.css';
 
 function ToDoList() {
 
-    const[tasks, setTasks] = useState(["Eat Breakfast", "Take a shower", "Walk the dog"]);
+    const[tasks, setTasks] = useState([]);
     const[newTask, setNewTask] = useState("");
 
     function handleInputChange(event) {
@@ -11,19 +12,35 @@ function ToDoList() {
     }
 
     function addTask(){
+        if(newTask.trim() !== ""){
+        setTasks(t => [...t, newTask]);
+        setNewTask("");
+        }
+
 
     }
 
     function deleteTask(index){
 
+        const updatedTasks = tasks.filter((_,i) => i !== index);
+        setTasks(updatedTasks);
+
     }
 
     function moveTaskUp(index){
-     
+     if(index > 0 ){
+        const updatedTasks = [...tasks];
+        [updatedTasks[index],updatedTasks[index -1]] = [updatedTasks[index -1], updatedTasks[index]];
+        setTasks(updatedTasks);
+     }
     }
 
     function moveTaskDown(index){
-
+     if(index < tasks.length -1 ){
+        const updatedTasks = [...tasks];
+        [updatedTasks[index],updatedTasks[index +1]] = [updatedTasks[index +1], updatedTasks[index]];
+        setTasks(updatedTasks);
+     }
     }
 
 
@@ -50,6 +67,16 @@ function ToDoList() {
         className='delete-button'
         onClick={() => deleteTask(index)}
         >Delete</button>
+        <button
+        className='up-button'
+        onClick={() => moveTaskUp(index)}
+        >⬆️
+        </button>
+        <button
+        className='down-button'
+        onClick={() => moveTaskDown(index)}
+        >⬇️
+        </button>
         </li>
            )}
     </ol>
