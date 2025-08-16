@@ -1,0 +1,39 @@
+/* Header.css */
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #f5f5f5; /* light-gray */
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffffb1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* subtle gray drop shadow */
+}
+
+.header_title {
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    font-size: 1.5rem; /* 24px */
+    font-weight: 700;
+    color: #1c1c1c; /* gray-800 */
+}
+
+.header_user-icon {
+  width: 2.5rem; /* 40px */
+  height: 2.5rem; /* 40px */
+  border-radius: 9999px; /* rounded-full */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 700;
+  padding-right: 10px;
+}
+.header_logo {
+    width: 2.5rem; /* 40px */
+    height: 2.5rem; /* 40px */
+    margin-right: 0.5rem; /* spacing between logo and text */
+}
