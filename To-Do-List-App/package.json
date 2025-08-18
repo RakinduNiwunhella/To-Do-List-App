@@ -16,6 +16,7 @@
     "@mui/material": "^7.3.1",
     "@mui/x-date-pickers": "^8.10.0",
     "@mui/x-date-pickers-pro": "^8.10.1",
+    "chrono-node": "^2.8.4",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "react": "^19.1.1",
