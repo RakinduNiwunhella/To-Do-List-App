@@ -1,110 +1,157 @@
-import React from 'react'
-import { useState } from 'react';
+import React, { useState } from 'react';
 import './index.css';
 import aiStar from './Components/Navbar/images/ai-star.png';
-import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
-import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import TextField from '@mui/material/TextField';
 
+const API_KEY = 'b4293e8acc52bccac8ed5e8114591955'; // Replace with your OpenWeatherMap API key
+
 function ToDoList() {
+  const [tasks, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState('');
+  const [selectedDateTime, setSelectedDateTime] = useState(null);
 
-    const[tasks, setTasks] = useState([]);
-    const[newTask, setNewTask] = useState("");
-    const [selectedDateTime, setSelectedDateTime] = useState(null);
+  const getWeather = async (date) => {
+    if (!date) return null;
 
-    function handleInputChange(event) {
-        setNewTask(event.target.value);
-    }
-    function addTask() {
-    if (newTask.trim() !== "" || selectedDateTime) { // allow either
-        const formattedDateTime = selectedDateTime ? selectedDateTime.format("DD/MM/YYYY hh:mm A") : null;
-        setTasks(t => [...t, { 
-        text: newTask.trim() !== "" ? newTask : "(No Task)", 
-        dateTime: formattedDateTime 
-        }]);
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/forecast?q=Colombo&appid=${API_KEY}&units=metric`
+    );
+    const data = await response.json();
 
-        // Reset inputs
-        setNewTask("");
-        setSelectedDateTime(null);
-    }
-    }
+    const forecast = data.list.find((item) => {
+      const forecastDate = new Date(item.dt_txt);
+      return (
+        forecastDate.getFullYear() === date.getFullYear() &&
+        forecastDate.getMonth() === date.getMonth() &&
+        forecastDate.getDate() === date.getDate()
+      );
+    });
 
-    function deleteTask(index){
-
-        const updatedTasks = tasks.filter((_,i) => i !== index);
-        setTasks(updatedTasks);
-
-    }
-
-    function moveTaskUp(index){
-     if(index > 0 ){
-        const updatedTasks = [...tasks];
-        [updatedTasks[index],updatedTasks[index -1]] = [updatedTasks[index -1], updatedTasks[index]];
-        setTasks(updatedTasks);
-     }
+    if (forecast) {
+      const weatherId = forecast.weather[0].id;
+      if (weatherId >= 200 && weatherId < 300) return '⛈️'; // Thunderstorm
+      if (weatherId >= 300 && weatherId < 600) return '🌧️'; // Drizzle/Rain
+      if (weatherId >= 600 && weatherId < 700) return '❄️'; // Snow
+      if (weatherId >= 700 && weatherId < 800) return '🌫️'; // Atmosphere
+      if (weatherId === 800) return '☀️'; // Clear
+      if (weatherId > 800) return '☁️'; // Clouds
     }
 
-    function moveTaskDown(index){
-     if(index < tasks.length -1 ){
-        const updatedTasks = [...tasks];
-        [updatedTasks[index],updatedTasks[index +1]] = [updatedTasks[index +1], updatedTasks[index]];
-        setTasks(updatedTasks);
-     }
+    return '❓'; // No data
+  };
+
+  const addTask = async () => {
+    if (newTask.trim() !== '' || selectedDateTime) {
+      const formattedDateTime = selectedDateTime
+        ? selectedDateTime.format('DD/MM/YYYY hh:mm A')
+        : null;
+      const weatherEmoji = await getWeather(
+        selectedDateTime ? selectedDateTime.toDate() : null
+      );
+
+      setTasks((t) => [
+        ...t,
+        {
+          text: newTask.trim() !== '' ? newTask : '(No Task)',
+          dateTime: formattedDateTime,
+          weather: weatherEmoji,
+        },
+      ]);
+
+      setNewTask('');
+      setSelectedDateTime(null);
     }
+  };
 
+  function deleteTask(index) {
+    const updatedTasks = tasks.filter((_, i) => i !== index);
+    setTasks(updatedTasks);
+  }
 
-  return (<div className='to-do-list'>
-<h1>
-  <img className='aiStar' src={aiStar} alt="AI Star"  />
-  To-Dooo-List
-</h1>
-    <div className='input-container'>
-        <input className='textbox' type="text"
-         name="" id=""
-          placeholder='Enter a Task...'
-           value={newTask} 
-           onChange={handleInputChange} />
-    
-    <button
-    className='add-button'
-    onClick={addTask}>
-        + Add Task
-    </button>
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <div className='date-time-picker'>
-        <DateTimePicker
-          value={selectedDateTime}
-          onChange={(newValue) => setSelectedDateTime(newValue)}
-        >
-          <TextField />
-        </DateTimePicker>
+  function moveTaskUp(index) {
+    if (index > 0) {
+      const updatedTasks = [...tasks];
+      [updatedTasks[index], updatedTasks[index - 1]] = [
+        updatedTasks[index - 1],
+        updatedTasks[index],
+      ];
+      setTasks(updatedTasks);
+    }
+  }
+
+  function moveTaskDown(index) {
+    if (index < tasks.length - 1) {
+      const updatedTasks = [...tasks];
+      [updatedTasks[index], updatedTasks[index + 1]] = [
+        updatedTasks[index + 1],
+        updatedTasks[index],
+      ];
+      setTasks(updatedTasks);
+    }
+  }
+
+  return (
+    <div className="to-do-list">
+      <h1>
+        <img className="aiStar" src={aiStar} alt="AI Star" />
+        To-Dooo-List
+      </h1>
+      <div className="input-container">
+        <input
+          className="textbox"
+          type="text"
+          name=""
+          id=""
+          placeholder="Enter a Task..."
+          value={newTask}
+          onChange={(e) => setNewTask(e.target.value)}
+        />
+        <button className="add-button" onClick={addTask}>
+          + Add Task
+        </button>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <div className="date-time-picker">
+            <DateTimePicker
+              value={selectedDateTime}
+              onChange={(newValue) => setSelectedDateTime(newValue)}
+            >
+              <TextField />
+            </DateTimePicker>
+          </div>
+        </LocalizationProvider>
       </div>
-    </LocalizationProvider>
+
+      <ol>
+        {tasks.map((task, index) => (
+          <li key={index}>
+            <span className="text">
+              {task.text}
+              <small> {task.dateTime}</small>
+              <span className="weather"> {task.weather}</span>
+            </span>
+            <button
+              className="delete-button"
+              onClick={() => deleteTask(index)}
+            >
+              Delete
+            </button>
+            <button className="up-button" onClick={() => moveTaskUp(index)}>
+              ⬆️
+            </button>
+            <button
+              className="down-button"
+              onClick={() => moveTaskDown(index)}
+            >
+              ⬇️
+            </button>
+          </li>
+        ))}
+      </ol>
     </div>
-
-    <ol>
-        {tasks.map((task, index) => 
-        <li key={index}><span className='text'>{task.text}<small> {task.dateTime}</small></span>
-        <button
-        className='delete-button'
-        onClick={() => deleteTask(index)}
-        >Delete</button>
-        <button
-        className='up-button'
-        onClick={() => moveTaskUp(index)}
-        >⬆️
-        </button>
-        <button
-        className='down-button'
-        onClick={() => moveTaskDown(index)}
-        >⬇️
-        </button>
-        </li>
-           )}
-    </ol>
-
-
-  </div>  )
+  );
 }
-export default ToDoList
+
+export default ToDoList;
