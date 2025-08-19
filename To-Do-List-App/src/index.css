@@ -1,3 +1,77 @@
+.task-tile, .task-tile-full {
+    background-color: #fff;
+    padding: 16px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center; /* vertically center content */
+    justify-content: space-between; /* text left, buttons right */
+    width: 80%; /* task width */
+    margin: 10px auto; /* center horizontally with spacing */
+}
+
+.buttons-container {
+    display: flex;
+    gap: 8px; /* space between buttons */
+}
+
+.buttons-container button {
+    background-color: transparent;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+}
+
+
+.buttons-container button img {
+    width: 20px;
+    height: 20px;
+}
+
+/* Updated button layout for .task-tile-full and .task-tile */
+.task-tile-full .delete-button,
+.task-tile-full .up-button,
+.task-tile-full .down-button,
+.task-tile .delete-button,
+.task-tile .up-button,
+.task-tile .down-button {
+    background-color: transparent;
+    border: none;
+    padding: 5px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.task-tile-full .delete-button img,
+.task-tile-full .up-button img,
+.task-tile-full .down-button img,
+.task-tile .delete-button img,
+.task-tile .up-button img,
+.task-tile .down-button img {
+    width: 20px;
+    height: 20px;
+}
+
+.task-tile .text, .task-tile-full .text {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* task left center, info right */
+    flex: 1;
+    gap: 10px;
+}
+
+.text .taskName {
+    flex: 1;
+    text-align: center; /* center the main task text */
+}
+
+.text .formattedDate,
+.text .weather {
+    text-align: right;
+    color: gray;
+    font-size: 1rem;
+}
+
 body{
     background-color: rgb(200, 201, 203);
 }
@@ -32,20 +106,12 @@ button{
 .add-button:hover{
     background-color: rgb(20, 23, 223,44%);
 }
-.delete-button{
-    background-color: rgb(218, 0, 0);
-}
+
+
 .delete-button:hover{
-    background-color: rgb(218, 0, 0,44%);
+    background-color: rgb(200, 201, 203);
 }
 
-.up-button, .down-button {
-background-color: rgb(2, 2, 181);
-}
-
-.up-button:hover, .down-button:hover {
-background-color: rgb(2, 2, 181,44%);
-}
 
 input[type="text"]{
     font-size: 1.2rem;
@@ -98,5 +164,9 @@ li{
 
 .formattedDate{
     font-size: 1.2rem;
+    color: gray;
+}
+.example-text{
+        font-size: 0.7rem;
     color: gray;
 }

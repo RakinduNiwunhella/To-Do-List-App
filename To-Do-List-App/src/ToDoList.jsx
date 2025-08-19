@@ -1,28 +1,19 @@
 import React, { useState } from 'react';
 import './index.css';
 import aiStar from './Components/Navbar/images/ai-star.png';
+import deleteIcon from './delete.svg';
+import upIcon from './up.svg';
+import downIcon from './down.svg';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import TextField from '@mui/material/TextField';
 import * as chrono from 'chrono-node';
-import { default as ApiCalendar } from 'react-google-calendar-api';
 
 
 
-const API_KEY = 'b4293e8acc52bccac8ed5e8114591955'; // Replace with your OpenWeatherMap API key
+const API_KEY = 'b4293e8acc52bccac8ed5e8114591955'; //  OpenWeatherMap API key
 
-const config = {
-  clientId: '1042585022018-7u8v41lc1l08eribmid04kr9b5c472d2.apps.googleusercontent.com',
-  apiKey: 'AIzaSyAK03U-Txd1gEAP26Iv_s-zVUB7OTShruI',
-  scope: 'https://www.googleapis.com/auth/calendar',
-  discoveryDocs: [
-    'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest',
-  ],
-};
-
-
-const apiCalendar = new ApiCalendar(config);
 
 
 function ToDoList() {
@@ -60,31 +51,7 @@ function ToDoList() {
     return '❓'; // No data
   };
 
-  async function addTaskToGoogleCalendar(taskTitle, taskDateTime) {
-    try {
-      await apiCalendar.authorize();
-    } catch (error) {
-      console.error('Google Calendar auth failed:', error);
-      return;
-    }
-    const event = {
-      summary: taskTitle,
-      start: {
-        dateTime: taskDateTime.toISOString(),
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      },
-      end: {
-        dateTime: new Date(taskDateTime.getTime() + 60 * 60 * 1000).toISOString(), // 1 hour later
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      },
-    };
-    try {
-      await apiCalendar.createEvent(event);
-      console.log('Event added to Google Calendar:', event);
-    } catch (error) {
-      console.error('Failed to add event to Google Calendar:', error);
-    }
-  }
+
 
   const addTask = async () => {
     if (newTask.trim() !== '' || selectedDateTime) {
@@ -131,10 +98,6 @@ function ToDoList() {
           weather: weatherEmoji,
         },
       ]);
-
-      if (dateToUse) {
-        await addTaskToGoogleCalendar(taskText !== '' ? taskText : '(No Task)', dateToUse);
-      }
 
       setNewTask('');
       setSelectedDateTime(null);
@@ -197,34 +160,34 @@ function ToDoList() {
             </DateTimePicker>
           </div>
         </LocalizationProvider>
+        <p className='example-text'>💡 Try: "Call dentist tomorrow morning", "Team meeting Friday 2pm", "Buy groceries urgent"...</p>
       </div>
 
-      <ol>
+      <div className="tasks-container">
         {tasks.map((task, index) => (
-          <li key={index}>
+          <div
+            key={index}
+            className={index === 0 ? "task-tile-full" : "task-tile"}
+          >
             <span className="text">
               {task.text}
-              <small className='formattedDate' > {task.dateTime}</small>
+              <small className='formattedDate'> {task.dateTime}</small>
               <span className="weather"> {task.weather}</span>
             </span>
-            <button
-              className="delete-button"
-              onClick={() => deleteTask(index)}
-            >
-              Delete
-            </button>
-            <button className="up-button" onClick={() => moveTaskUp(index)}>
-              ⬆️
-            </button>
-            <button
-              className="down-button"
-              onClick={() => moveTaskDown(index)}
-            >
-              ⬇️
-            </button>
-          </li>
+            <div className="buttons-container">
+              <button className="delete-button" onClick={() => deleteTask(index)}>
+                <img src={deleteIcon} alt="Delete Task" />
+              </button>
+              <button className="up-button" onClick={() => moveTaskUp(index)}>
+                <img src={upIcon} alt="Task Up" />
+              </button>
+              <button className="down-button" onClick={() => moveTaskDown(index)}>
+                <img src={downIcon} alt="Task Down" />
+              </button>
+            </div>
+          </div>
         ))}
-      </ol>
+      </div>
     </div>
   );
 }
