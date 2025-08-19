@@ -5,8 +5,11 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import TextField from '@mui/material/TextField';
+import * as chrono from 'chrono-node';
+
 
 const API_KEY = 'b4293e8acc52bccac8ed5e8114591955'; // Replace with your OpenWeatherMap API key
+
 
 function ToDoList() {
   const [tasks, setTasks] = useState([]);
@@ -45,17 +48,45 @@ function ToDoList() {
 
   const addTask = async () => {
     if (newTask.trim() !== '' || selectedDateTime) {
-      const formattedDateTime = selectedDateTime
-        ? selectedDateTime.format('DD/MM/YYYY hh:mm A')
+      let taskText = newTask.trim();
+
+      // Parse natural language date/time
+      const results = !selectedDateTime ? chrono.parse(taskText) : [];
+      let parsedDate = null;
+
+      if (results.length > 0) {
+        parsedDate = results[0].start.date();
+
+        // Remove detected date/time text from task string
+        const { index, text } = results[0];
+        taskText =
+          taskText.slice(0, index).trim() +
+          ' ' +
+          taskText.slice(index + text.length).trim();
+        taskText = taskText.trim();
+      }
+
+      const dateToUse = selectedDateTime
+        ? selectedDateTime.toDate()
+        : parsedDate || null;
+
+      const formattedDateTime = dateToUse
+        ? new Date(dateToUse).toLocaleString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+          })
         : null;
-      const weatherEmoji = await getWeather(
-        selectedDateTime ? selectedDateTime.toDate() : null
-      );
+
+      const weatherEmoji = await getWeather(dateToUse);
 
       setTasks((t) => [
         ...t,
         {
-          text: newTask.trim() !== '' ? newTask : '(No Task)',
+          text: taskText !== '' ? taskText : '(No Task)',
           dateTime: formattedDateTime,
           weather: weatherEmoji,
         },
@@ -129,7 +160,7 @@ function ToDoList() {
           <li key={index}>
             <span className="text">
               {task.text}
-              <small> {task.dateTime}</small>
+              <small className='formattedDate' > {task.dateTime}</small>
               <span className="weather"> {task.weather}</span>
             </span>
             <button

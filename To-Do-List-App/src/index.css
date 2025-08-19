@@ -95,3 +95,8 @@ li{
       margin-right: 8px;
        vertical-align: middle;
 }
+
+.formattedDate{
+    font-size: 1.2rem;
+    color: gray;
+}
