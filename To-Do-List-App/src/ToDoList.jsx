@@ -6,9 +6,23 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import TextField from '@mui/material/TextField';
 import * as chrono from 'chrono-node';
+import { default as ApiCalendar } from 'react-google-calendar-api';
+
 
 
 const API_KEY = 'b4293e8acc52bccac8ed5e8114591955'; // Replace with your OpenWeatherMap API key
+
+const config = {
+  clientId: '1042585022018-7u8v41lc1l08eribmid04kr9b5c472d2.apps.googleusercontent.com',
+  apiKey: 'AIzaSyAK03U-Txd1gEAP26Iv_s-zVUB7OTShruI',
+  scope: 'https://www.googleapis.com/auth/calendar',
+  discoveryDocs: [
+    'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest',
+  ],
+};
+
+
+const apiCalendar = new ApiCalendar(config);
 
 
 function ToDoList() {
@@ -45,6 +59,32 @@ function ToDoList() {
 
     return '❓'; // No data
   };
+
+  async function addTaskToGoogleCalendar(taskTitle, taskDateTime) {
+    try {
+      await apiCalendar.authorize();
+    } catch (error) {
+      console.error('Google Calendar auth failed:', error);
+      return;
+    }
+    const event = {
+      summary: taskTitle,
+      start: {
+        dateTime: taskDateTime.toISOString(),
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      },
+      end: {
+        dateTime: new Date(taskDateTime.getTime() + 60 * 60 * 1000).toISOString(), // 1 hour later
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      },
+    };
+    try {
+      await apiCalendar.createEvent(event);
+      console.log('Event added to Google Calendar:', event);
+    } catch (error) {
+      console.error('Failed to add event to Google Calendar:', error);
+    }
+  }
 
   const addTask = async () => {
     if (newTask.trim() !== '' || selectedDateTime) {
@@ -91,6 +131,10 @@ function ToDoList() {
           weather: weatherEmoji,
         },
       ]);
+
+      if (dateToUse) {
+        await addTaskToGoogleCalendar(taskText !== '' ? taskText : '(No Task)', dateToUse);
+      }
 
       setNewTask('');
       setSelectedDateTime(null);
