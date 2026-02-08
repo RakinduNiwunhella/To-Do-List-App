@@ -139,6 +139,32 @@ async function deleteTask(taskId) {
       setTasks(updatedTasks);
     }
   }
+  const [isListening, setIsListening] = useState(false);
+  const startVoiceInput = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if(!SpeechRecognition){
+      alert('Voice input is not supported in this browser. Try Chrome');
+      return;
+    }
+  
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = () => setIsListening(true);
+  recognition.onend = () => setIsListening(false);
+  recognition.onerror = () => setIsListening(false);
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    setNewTask(transcript);
+  };
+
+  recognition.start();
+  }
 
   return (
     <div className="to-do-list">
@@ -158,7 +184,11 @@ async function deleteTask(taskId) {
             onChange={(e) => setNewTask(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addTask()}
           />
-          <button className="mic-button" title="Voice input (coming soon)">
+
+          <button className={`mic-button ${isListening ? 'mic-listening': ''}`}
+                  title={isListening ? 'Listening...' : 'Voice Input'}
+                  onClick={startVoiceInput}>
+                    
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
               <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
@@ -166,6 +196,8 @@ async function deleteTask(taskId) {
               <line x1="8" y1="23" x2="16" y2="23"/>
             </svg>
           </button>
+
+
           <button className="add-button" onClick={addTask}>
             + Add Task
           </button>
