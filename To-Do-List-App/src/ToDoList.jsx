@@ -135,58 +135,91 @@ function ToDoList() {
     <div className="to-do-list">
       <h1>
         <img className="aiStar" src={aiStar} alt="AI Star" />
-        To-Dooo-List
+        To-Do List
       </h1>
+      <p className="subtitle">Your intelligent task companion</p>
+
       <div className="input-container">
-        <input
-          className="textbox"
-          type="text"
-          name=""
-          id=""
-          placeholder="Enter a Task..."
-          value={newTask}
-          onChange={(e) => setNewTask(e.target.value)}
-        />
-        <button className="add-button" onClick={addTask}>
-          + Add Task
-        </button>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <div className="date-time-picker">
-            <DateTimePicker
-              value={selectedDateTime}
-              onChange={(newValue) => setSelectedDateTime(newValue)}
-            >
-              <TextField />
-            </DateTimePicker>
-          </div>
-        </LocalizationProvider>
-        <p className='example-text'>💡 Try: "Call dentist tomorrow morning", "Team meeting Friday 2pm", "Buy groceries urgent"...</p>
+        <div className="input-row">
+          <input
+            className="textbox"
+            type="text"
+            placeholder="Enter a task... or try natural language"
+            value={newTask}
+            onChange={(e) => setNewTask(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && addTask()}
+          />
+          <button className="mic-button" title="Voice input (coming soon)">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+          </button>
+          <button className="add-button" onClick={addTask}>
+            + Add Task
+          </button>
+        </div>
+
+        <div className="date-time-row">
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <div className="date-time-picker">
+              <DateTimePicker
+                value={selectedDateTime}
+                onChange={(newValue) => setSelectedDateTime(newValue)}
+              >
+                <TextField />
+              </DateTimePicker>
+            </div>
+          </LocalizationProvider>
+        </div>
+
+        <p className='example-text'>💡 Try: "Call dentist tomorrow morning" · "Team meeting Friday 2pm" · "Buy groceries urgent"</p>
       </div>
 
+      {tasks.length > 0 && (
+        <div className="tasks-header">
+          <span className="tasks-title">Tasks</span>
+          <span className="tasks-count">{tasks.length}</span>
+        </div>
+      )}
+
       <div className="tasks-container">
-        {tasks.map((task, index) => (
-          <div
-            key={index}
-            className={index === 0 ? "task-tile-full" : "task-tile"}
-          >
-            <span className="text">
-              {task.text}
-              <small className='formattedDate'> {task.dateTime}</small>
-              <span className="weather"> {task.weather}</span>
-            </span>
-            <div className="buttons-container">
-              <button className="delete-button" onClick={() => deleteTask(index)}>
-                <img src={deleteIcon} alt="Delete Task" />
-              </button>
-              <button className="up-button" onClick={() => moveTaskUp(index)}>
-                <img src={upIcon} alt="Task Up" />
-              </button>
-              <button className="down-button" onClick={() => moveTaskDown(index)}>
-                <img src={downIcon} alt="Task Down" />
-              </button>
-            </div>
+        {tasks.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-state-icon">✓</div>
+            <p>No tasks yet — add one above!</p>
           </div>
-        ))}
+        ) : (
+          tasks.map((task, index) => (
+            <div
+              key={index}
+              className={index === 0 ? "task-tile-full" : "task-tile"}
+            >
+              <div className="text">
+                <span className="task-main-text">{task.text}</span>
+                {(task.dateTime || task.weather) && (
+                  <div className="task-meta">
+                    {task.dateTime && <small className="formattedDate">{task.dateTime}</small>}
+                    {task.weather && <span className="weather">{task.weather}</span>}
+                  </div>
+                )}
+              </div>
+              <div className="buttons-container">
+                <button className="delete-button" onClick={() => deleteTask(index)}>
+                  <img src={deleteIcon} alt="Delete Task" />
+                </button>
+                <button className="up-button" onClick={() => moveTaskUp(index)}>
+                  <img src={upIcon} alt="Task Up" />
+                </button>
+                <button className="down-button" onClick={() => moveTaskDown(index)}>
+                  <img src={downIcon} alt="Task Down" />
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
