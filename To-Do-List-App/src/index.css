@@ -409,3 +409,69 @@ ol {
   padding: 0;
   list-style: none;
 }
+.subtasks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.subtask-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+}
+
+.subtask-dot { color: #4b5563; }
+.subtask-text { color: #64748b; }
+
+.subtask-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-left: 0.25rem;
+}
+
+.subtask-link-group {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.subtask-link-label { color: #334155; font-size: 0.7rem; }
+
+.subtask-link {
+  font-size: 0.7rem;
+  color: #6366f1;
+  text-decoration: none;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid rgba(99,102,241,0.25);
+  border-radius: 4px;
+  transition: background 0.15s ease;
+}
+
+.subtask-link:hover {
+  background: rgba(99,102,241,0.12);
+}
+.subtask-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.15s ease;
+  padding: 0;
+}
+
+.subtask-button:hover {
+  background: rgba(167, 139, 250, 0.15);
+}

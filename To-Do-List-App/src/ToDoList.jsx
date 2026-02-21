@@ -117,6 +117,11 @@ async function deleteTask(taskId) {
   await fetch(`http://localhost:8000/tasks/${taskId}`,{method:'DELETE'});
   setTasks(prev => prev.filter(t => t.id !== taskId));
 }
+async function generateSubtasks(taskId){
+  const res = await fetch(`http://localhost:8000/tasks/${taskId}/subtasks`,{method: 'POST'});
+  const updated = await res.json();
+  setTasks(prev => prev.map(t => t.id==taskId ? updated : t));
+}
 
   function moveTaskUp(index) {
     if (index > 0) {
@@ -188,7 +193,7 @@ async function deleteTask(taskId) {
           <button className={`mic-button ${isListening ? 'mic-listening': ''}`}
                   title={isListening ? 'Listening...' : 'Voice Input'}
                   onClick={startVoiceInput}>
-                    
+
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
               <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
@@ -246,8 +251,35 @@ async function deleteTask(taskId) {
                     {task.weather && <span className="weather">{task.weather}</span>}
                   </div>
                 )}
+                {task.subtasks && task.subtasks.length > 0 && (
+                  <div className="subtasks">
+                    {task.subtasks.map((sub) => {
+                      const links = sub.links ? JSON.parse(sub.links) : [];
+                      return (
+                        <div key={sub.id} className="subtask-item">
+                          <span className="subtask-dot">›</span>
+                          <span className="subtask-text">{sub.text}</span>
+                          {links.length > 0 && (
+                            <div className="subtask-links">
+                              {links.map((l) => (
+                                <span key={l.item} className="subtask-link-group">
+                                  <span className="subtask-link-label">{l.item}:</span>
+                                  <a href={l.google} target="_blank" rel="noopener noreferrer" className="subtask-link">🛒 Google</a>
+                                  <a href={l.amazon} target="_blank" rel="noopener noreferrer" className="subtask-link">📦 Amazon</a>
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
               <div className="buttons-container">
+                  <button className="subtask-button" onClick={() => generateSubtasks(task.id)} title="Generate subtasks">
+                    ✨
+                  </button>
                 <button className="delete-button" onClick={() => deleteTask(task.id)}>
                   <img src={deleteIcon} alt="Delete Task" />
                 </button>
