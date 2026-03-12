@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './index.css';
 import aiStar from './Components/Navbar/images/ai-star.png';
 import deleteIcon from './delete.svg';
@@ -20,6 +20,12 @@ function ToDoList() {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState('');
   const [selectedDateTime, setSelectedDateTime] = useState(null);
+
+  useEffect(() => {
+    fetch('http://localhost:8000/tasks/')
+      .then(res => res.json())
+      .then(data => setTasks(data));
+  }, []);
 
   const getWeather = async (date) => {
     if (!date) return null;
@@ -90,24 +96,27 @@ function ToDoList() {
 
       const weatherEmoji = await getWeather(dateToUse);
 
-      setTasks((t) => [
-        ...t,
-        {
+      const res = await fetch('http://localhost:8000/tasks/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           text: taskText !== '' ? taskText : '(No Task)',
-          dateTime: formattedDateTime,
+          date_time: formattedDateTime,
           weather: weatherEmoji,
-        },
-      ]);
+        }),
+      });
+      const created = await res.json();
+      setTasks(prev => [...prev, created]);
 
       setNewTask('');
       setSelectedDateTime(null);
     }
   };
 
-  function deleteTask(index) {
-    const updatedTasks = tasks.filter((_, i) => i !== index);
-    setTasks(updatedTasks);
-  }
+async function deleteTask(taskId) {
+  await fetch(`http://localhost:8000/tasks/${taskId}`,{method:'DELETE'});
+  setTasks(prev => prev.filter(t => t.id !== taskId));
+}
 
   function moveTaskUp(index) {
     if (index > 0) {
@@ -199,15 +208,15 @@ function ToDoList() {
             >
               <div className="text">
                 <span className="task-main-text">{task.text}</span>
-                {(task.dateTime || task.weather) && (
+                {(task.date_time || task.weather) && (
                   <div className="task-meta">
-                    {task.dateTime && <small className="formattedDate">{task.dateTime}</small>}
+                    {task.date_time && <small className="formattedDate">{task.date_time}</small>}
                     {task.weather && <span className="weather">{task.weather}</span>}
                   </div>
                 )}
               </div>
               <div className="buttons-container">
-                <button className="delete-button" onClick={() => deleteTask(index)}>
+                <button className="delete-button" onClick={() => deleteTask(task.id)}>
                   <img src={deleteIcon} alt="Delete Task" />
                 </button>
                 <button className="up-button" onClick={() => moveTaskUp(index)}>
