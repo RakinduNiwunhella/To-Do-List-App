@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import Task, Subtask
 from ..schemas import TaskCreate, TaskUpdate, TaskResponse
-from .. import agent
+from ..agent import generate_subtasks
 from typing import List
 import json
 
