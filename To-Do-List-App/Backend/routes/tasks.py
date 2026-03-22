@@ -1,17 +1,17 @@
 # Backend/routes/tasks.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from database import get_db
-from models import Task, Subtask
-from schemas import TaskCreate, TaskUpdate, TaskResponse
-from agent import generate_subtasks
+from ..database import get_db
+from ..models import Task, Subtask
+from ..schemas import TaskCreate, TaskUpdate, TaskResponse
+from ..agent import generate_subtasks
 from typing import List
 import json
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
-from auth import get_current_user
-from models import Task, Subtask, User
+from ..auth import get_current_user
+from ..models import Task, Subtask, User
 
 @router.get("/", response_model=List[TaskResponse])
 def get_tasks(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
