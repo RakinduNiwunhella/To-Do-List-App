@@ -10,20 +10,31 @@ import json
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
+from auth import get_current_user
+from models import Task, Subtask, User
+
 @router.get("/", response_model=List[TaskResponse])
-def get_tasks(db: Session = Depends(get_db)):
-    return db.query(Task).order_by(Task.position).all()
+def get_tasks(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return db.query(Task).filter(Task.owner_id == current_user.id).order_by(Task.position).all()
 
 @router.post("/", response_model=TaskResponse, status_code=201)
-def create_task(task: TaskCreate, db: Session = Depends(get_db)):
-    max_pos = db.query(Task).count()
-    db_task = Task(**task.model_dump(), position=max_pos)
+def create_task(task: TaskCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    max_pos = db.query(Task).filter(Task.owner_id == current_user.id).count()
+    db_task = Task(**task.model_dump(), owner_id=current_user.id, position=max_pos)
     db.add(db_task)
     db.commit()
     db.refresh(db_task)
-
-
     return db_task
+
+@router.delete("/{task_id}", status_code=204)
+def delete_task(task_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    task = db.query(Task).filter(Task.id == task_id, Task.owner_id == current_user.id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    db.delete(task)
+    db.commit()
+
+# Same pattern for patch and subtasks routes — add the Depends and filter by owner_id
 
 @router.post("/{task_id}/subtasks", response_model=TaskResponse)
 def create_subtasks(task_id: int, db: Session = Depends(get_db)):
@@ -44,13 +55,6 @@ def create_subtasks(task_id: int, db: Session = Depends(get_db)):
     db.refresh(task)
     return task
 
-@router.delete("/{task_id}", status_code=204)
-def delete_task(task_id: int, db: Session = Depends(get_db)):
-    task = db.query(Task).filter(Task.id == task_id).first()
-    if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
-    db.delete(task)
-    db.commit()
 
 @router.patch("/{task_id}", response_model=TaskResponse)
 def update_task(task_id: int, updates: TaskUpdate, db: Session = Depends(get_db)):

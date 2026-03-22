@@ -21,10 +21,15 @@ function ToDoList() {
   const [newTask, setNewTask] = useState('');
   const [selectedDateTime, setSelectedDateTime] = useState(null);
 
+  const authHeader = () => ({
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${localStorage.getItem('google_access_token')}`
+  });
+
   useEffect(() => {
-    fetch('http://localhost:8000/tasks/')
+    fetch('http://localhost:8000/tasks/', { headers: authHeader() })
       .then(res => res.json())
-      .then(data => setTasks(data));
+      .then(data => { if (Array.isArray(data)) setTasks(data); });
   }, []);
 
   const getWeather = async (date) => {
@@ -98,7 +103,7 @@ function ToDoList() {
 
       const res = await fetch('http://localhost:8000/tasks/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeader(),
         body: JSON.stringify({
           text: taskText !== '' ? taskText : '(No Task)',
           date_time: formattedDateTime,
@@ -114,11 +119,11 @@ function ToDoList() {
   };
 
 async function deleteTask(taskId) {
-  await fetch(`http://localhost:8000/tasks/${taskId}`,{method:'DELETE'});
+  await fetch(`http://localhost:8000/tasks/${taskId}`, { method: 'DELETE', headers: authHeader() });
   setTasks(prev => prev.filter(t => t.id !== taskId));
 }
 async function generateSubtasks(taskId){
-  const res = await fetch(`http://localhost:8000/tasks/${taskId}/subtasks`,{method: 'POST'});
+  const res = await fetch(`http://localhost:8000/tasks/${taskId}/subtasks`, { method: 'POST', headers: authHeader() });
   const updated = await res.json();
   setTasks(prev => prev.map(t => t.id==taskId ? updated : t));
 }
