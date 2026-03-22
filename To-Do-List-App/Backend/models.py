@@ -23,7 +23,7 @@ class Task(Base):
     weather    = Column(String, nullable=True)
     position   = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
-    owner =relationship("user", back_populates="tasks")
+    owner = relationship("User", back_populates="tasks")
     subtasks   = relationship("Subtask", back_populates="task", cascade="all, delete")
 
 class Subtask(Base):
