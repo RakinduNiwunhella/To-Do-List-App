@@ -1,8 +1,8 @@
 # backend/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from database import engine, Base
-from routes import tasks
+from .database import engine, Base
+from .routes import tasks
 
 # Create all tables on startup (dev convenience — use Alembic in production)
 Base.metadata.create_all(bind=engine)
