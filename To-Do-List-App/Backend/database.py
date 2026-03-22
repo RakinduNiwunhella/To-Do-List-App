@@ -8,6 +8,8 @@ import os
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./tasks.db")
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 # SQLite for local dev  ↑  (no extra setup needed)
 # swap to postgres later:  postgresql://user:pass@localhost/taskdb
 
