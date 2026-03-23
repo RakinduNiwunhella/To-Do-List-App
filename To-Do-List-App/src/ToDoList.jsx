@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+// Use Vite env variable for API URL
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 import './index.css';
 import aiStar from './Components/Navbar/images/ai-star.png';
 import deleteIcon from './delete.svg';
@@ -27,7 +29,7 @@ function ToDoList() {
   });
 
   useEffect(() => {
-    fetch('http://localhost:8000/tasks/', { headers: authHeader() })
+    fetch(`${API_URL}/tasks/`, { headers: authHeader() })
       .then(res => res.json())
       .then(data => { if (Array.isArray(data)) setTasks(data); });
   }, []);
@@ -101,7 +103,7 @@ function ToDoList() {
 
       const weatherEmoji = await getWeather(dateToUse);
 
-      const res = await fetch('http://localhost:8000/tasks/', {
+      const res = await fetch(`${API_URL}/tasks/`, {
         method: 'POST',
         headers: authHeader(),
         body: JSON.stringify({
@@ -119,11 +121,11 @@ function ToDoList() {
   };
 
 async function deleteTask(taskId) {
-  await fetch(`http://localhost:8000/tasks/${taskId}`, { method: 'DELETE', headers: authHeader() });
+  await fetch(`${API_URL}/tasks/${taskId}`, { method: 'DELETE', headers: authHeader() });
   setTasks(prev => prev.filter(t => t.id !== taskId));
 }
 async function generateSubtasks(taskId){
-  const res = await fetch(`http://localhost:8000/tasks/${taskId}/subtasks`, { method: 'POST', headers: authHeader() });
+  const res = await fetch(`${API_URL}/tasks/${taskId}/subtasks`, { method: 'POST', headers: authHeader() });
   const updated = await res.json();
   setTasks(prev => prev.map(t => t.id==taskId ? updated : t));
 }
